@@ -1,0 +1,72 @@
+# Notes by James Max Christensen 2022
+# These are blocking outbound traffic, but for firewalls, you are often blocking input traffic instead
+# None of these rules are going to stick and will be erased when we reboot the server
+# You still have to add --permanent to firewall-cmd or load the nft or iptables file on boot
+
+# Check to see if port 80 outbound is blocked and it is not:
+curl portquiz.net:80
+
+# Add a firewall to block port 80 with firewall-cmd on RedHat or Alma Linux
+# This is how to add a more complicated rule for firewall-cmd (BUT IT MIGHT BREAK your simple firewall)
+firewall-cmd --direct --add-rule ipv4 filter OUTPUT 0 -p tcp -m tcp --dport=80 -j DROP
+
+# Check to see if port 80 outbound is blocked and notice how it fails to connect now:
+curl portquiz.net:80
+
+# Notice it doesn't show up because it is a complicated rule
+sudo firewall-cmd --list-all
+
+# Notice how it also adds it to iptables - this command shows the iptables rules
+sudo iptables -L 
+
+# Notice how it also adds it to nftables - this command shows the nftables rules
+sudo nft list ruleset 
+
+# Let’s delete it using iptables
+sudo iptables -F  
+
+# Notice how it removed it from iptables
+sudo iptables -L
+
+# Notice how it removed it also from nftables
+sudo nft list ruleset 
+
+# Check to see if port 80 outbound is blocked and notice how it works now:
+curl portquiz.net:80
+
+# Now we want to reload firewall-cmd so that it gets the update that we removed the rule from iptables
+sudo firewall-cmd --reload
+
+# Add a firewall to block port 80 with iptables on RedHat or Alma Linux
+sudo iptables -A OUTPUT -p tcp --dport 80 -j DROP
+
+# Check to see if port 80 outbound is blocked and notice how it fails to connect now:
+curl portquiz.net:80
+
+# Notice how it also adds it to iptables - this command shows the iptables rules
+sudo iptables -L 
+
+# Notice how it also adds it to nftables - this command shows the nftables rules
+sudo nft list ruleset 
+
+# Let’s delete it using iptables or you could have deleted it with nftables
+sudo iptables -F  
+
+# Add a firewall to block port 80 with nftables on RedHat or Alma Linux
+sudo nft add rule ip filter OUTPUT tcp dport 80 counter drop
+
+# Let’s delete it using nftables
+sudo nft flush table ip filter
+
+# Convert an iptables rule to an nth one (the flush/delete one)
+sudo iptables-translate -F
+
+# Convert an iptables rule to nft
+sudo iptables-translate -A OUTPUT -p tcp --dport 80 -j DROP
+
+# Save all the iptables rules to a file, but we still need to load it somewhere on boot
+sudo iptables-save > /etc/iptables.rules
+
+# Put this in a boot script or network config file to load the rules on the system booting up
+iptables-restore < /etc/iptables.rules
+
