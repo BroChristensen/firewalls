@@ -1,4 +1,6 @@
 # Notes by James Max Christensen 2022
+# This is the powerpoint that goes with it:
+# https://webmailbyui-my.sharepoint.com/:p:/g/personal/jamesmax_byui_edu/EcoCHnoHejhFrRixTV_ylboB9waMihNJCuPrw972PlHtBA?e=sO1H3G
 # These are blocking outbound traffic, but for firewalls, you are often blocking input traffic instead
 # None of these rules are going to stick and will be erased when we reboot the server
 # You still have to add --permanent to firewall-cmd or load the nft or iptables file on boot
